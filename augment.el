@@ -19,6 +19,23 @@
 ;; TODO: customize face per entry?
 (defface augment-face '((t (:inherit link)))
   "Face used for augmented sections.")
+
+(defvar augment-entries nil
+  "List of augmentation entries to apply.
+
+An entry is a plist of (:PREDICATE :REGEXP :AUGMENT-FN).
+
+:PREDICATE determines if an entry is applied. It can be either:
+* A symbol
+* A function, in which case it is called without arguments.
+
+:REGEXP is an elisp regular expression.
+
+:AUGMENT-FN is a function which is called with a list of string
+matches from REGEXP, the 0th element is the entire match, the 1st
+element is the first group match, etc. The function should return
+a string which is used as the content of the augmentation.")
+
 ;;;; predicates
 
 (defun augment-in-string-p (&optional pos)
