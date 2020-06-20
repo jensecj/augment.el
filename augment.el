@@ -14,6 +14,7 @@
 ;;; Code:
 
 (require 'syntax)
+(require 'dash)
 ;;;; settings
 
 ;; TODO: customize face per entry?
@@ -57,6 +58,14 @@ a string which is used as the content of the augmentation.")
 
 ;;;; core
 
+(defun augment-matches (match-data)
+  "Collect all match groups from MATCH-DATA, as strings.
+
+The 0th element is the entire match, the 1st element is the first
+capture group, etc."
+  (let* ((data (-partition 2 (-butlast match-data)))
+         (matches (mapcar (lambda (d) (apply #'buffer-substring-no-properties d)) data)))
+    matches))
 
 (defun augment-create-overlay (beg end aug)
   "Augment the region between BEG and END, with content AUG."
@@ -78,6 +87,36 @@ applied in region BEG END."
   (cond
    ((functionp pred) (funcall pred))
    ((symbolp pred) pred)))
+
+(defun augment--unfontify (start end)
+  "Remove all augment overlays from region."
+  (dolist (o (overlays-in start end))
+    (when (eq (overlay-get o 'category) 'augment)
+      (delete-overlay o))))
+
+(defun augment--fontify (start end)
+  "Add applicable augment overlays in region between START and END."
+  (save-excursion
+    (let ((beg-line (progn (goto-char start) (line-beginning-position)))
+	        (end-line (progn (goto-char end) (line-end-position))))
+      ;; we re-fontify the entire region, so first remove the old overlays
+      (augment--unfontify beg-line end-line)
+      (goto-char beg-line)
+
+      (dolist (e augment-entries)
+        (when-let ((pred (plist-get e :predicate))
+                   (regex (plist-get e :regex))
+                   (augment-fn (plist-get e :augment-fn)))
+          (when (augment--predicate-truthy-p pred)
+            (save-excursion ;; each entry needs to look at the entire region
+              (while (and (< (point) end-line)
+		                      (re-search-forward regex end-line 'move))
+                (let ((beg (match-beginning 0))
+                      (end (match-end 0)))
+	                (when (augment--should-apply-p beg end)
+                    (when-let ((data (augment-matches (match-data t)))
+                               (augmentation (funcall augment-fn data)))
+                      (augment-create-overlay beg end augmentation))))))))))))
 
 ;;;; public
 
