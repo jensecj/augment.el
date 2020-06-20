@@ -31,6 +31,15 @@
     map)
   "Keymap used by augment buttons.")
 
+(defun augment--set-overlay-properties ()
+  "Set properties of augment overlays."
+  (put 'augment 'evaporate t)
+  (put 'augment 'face 'augment-face)
+  (put 'augment 'keymap augment-map)
+  (put 'augment 'follow-link t))
+
+(augment--set-overlay-properties)
+
 ;;;###autoload
 (define-minor-mode augment-mode
   "Toggle augmenting the buffer."
