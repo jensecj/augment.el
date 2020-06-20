@@ -106,6 +106,13 @@ applied in region BEG END."
       (when-let ((a (overlay-get o 'augmentation)))
         (push a augs)))
     augs))
+
+(defun augment-browse-at-point ()
+  "Treat the augmentation at point as an URL, and browse to it."
+  (interactive)
+  (when-let ((url (augment-at-point)))
+    (browse-url url)))
+
 ;;;; mode
 
 (defvar augment-map
