@@ -34,6 +34,12 @@
 
 ;;;; core
 
+
+(defun augment-create-overlay (beg end aug)
+  "Augment the region between BEG and END, with content AUG."
+  (let ((o (make-overlay beg end nil t nil)))
+	  (overlay-put o 'category 'augment)
+    (overlay-put o 'augmentation aug)))
 ;;;; public
 
 ;;;; mode
