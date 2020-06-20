@@ -14,6 +14,8 @@
 ;;; Code:
 
 (require 'syntax)
+(require 'jit-lock)
+
 (require 'dash)
 ;;;; settings
 
@@ -172,7 +174,14 @@ applied in region BEG END."
 (define-minor-mode augment-mode
   "Toggle augmenting the buffer."
   nil " augment" augment-map
-  )
+  (if augment-mode
+      (progn
+        (augment-prog-mode -1)
+        (jit-lock-register #'augment--fontify))
+    (jit-lock-unregister #'augment--fontify)
+    (save-restriction
+      (widen)
+      (augment--unfontify (point-min) (point-max)))))
 
 (define-globalized-minor-mode global-augment-mode
   augment-mode
@@ -182,7 +191,14 @@ applied in region BEG END."
 (define-minor-mode augment-prog-mode
   "Like `augment-mode', but only augment in comments and strings."
   nil " augment-prog" augment-map
-  )
+  (if augment-prog-mode
+      (progn
+        (augment-mode -1)
+        (jit-lock-register #'augment--fontify))
+    (jit-lock-unregister #'augment--fontify)
+    (save-restriction
+      (widen)
+      (augment--unfontify (point-min) (point-max)))))
 
 (define-globalized-minor-mode global-augment-prog-mode
   augment-prog-mode
