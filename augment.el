@@ -13,6 +13,7 @@
 
 ;;; Code:
 
+(require 'syntax)
 ;;;; settings
 
 ;; TODO: customize face per entry?
