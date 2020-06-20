@@ -59,6 +59,15 @@ a string which is used as the content of the augmentation.")
 	  (overlay-put o 'category 'augment)
     (overlay-put o 'augmentation aug)))
 
+(defun augment--should-apply-p (beg end)
+  "Predicate which determites if an augmentation should be
+applied in region BEG END."
+  (and
+   ;; don't create multiple overlays at the same point
+   (not (augment-in-region beg end)) ;; TODO: add priority to entries?
+   ;; if `augment-prog-mode' is active, only augment strings and comments.
+   (or (not augment-prog-mode) (augment-in-comment-or-string-p))))
+
 (defun augment--predicate-truthy-p (pred)
   "Returns non-nil if PRED is true."
   (cond
