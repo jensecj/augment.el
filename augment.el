@@ -20,6 +20,18 @@
   "Face used for augmented sections.")
 ;;;; predicates
 
+(defun augment-in-string-p (&optional pos)
+  "Return non-nil if POS is inside string syntax."
+  (nth 3 (syntax-ppss pos)))
+
+(defun augment-in-comment-p (&optional pos)
+  "Return non-nil if POS is inside comment syntax."
+  (nth 4 (syntax-ppss pos)))
+
+(defun augment-in-comment-or-string-p (&optional pos)
+  "Character address of start of comment or string; nil if not in either."
+  (nth 8 (syntax-ppss pos)))
+
 ;;;; core
 
 ;;;; public
