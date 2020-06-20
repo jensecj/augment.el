@@ -42,6 +42,23 @@
     (overlay-put o 'augmentation aug)))
 ;;;; public
 
+(defun augment-at-point (&optional p)
+  "Return the augment at point P."
+  (let ((aug))
+    ;; there should only be one `augment' overlay
+    (dolist (o (overlays-at (or p (point))))
+      (when-let ((a (overlay-get o 'augmentation)))
+        (setq aug a)))
+    aug))
+
+(defun augment-in-region (beg end)
+  "Return a list of all augments in region between BEG and END."
+  (let ((augs))
+    ;; there should only be one `augment' overlay
+    (dolist (o (overlays-in beg end))
+      (when-let ((a (overlay-get o 'augmentation)))
+        (push a augs)))
+    augs))
 ;;;; mode
 
 (defvar augment-map
