@@ -16,14 +16,40 @@
 (require 'syntax)
 (require 'jit-lock)
 
+(require 'rx)
 (require 'dash)
+(require 'bug-reference)
+
 ;;;; settings
 
 ;; TODO: customize face per entry?
 (defface augment-face '((t (:inherit link)))
   "Face used for augmented sections.")
 
-(defvar augment-entries nil
+(defun augment--augment-debbugs (matchdata)
+  (concat "https://debbugs.gnu.org/" (nth 2 matchdata)))
+
+(defvar augment-entry-debbugs
+  (list
+   :predicate t
+   :order 1
+   :regex bug-reference-bug-regexp
+   :augment-fn #'augment--augment-debbugs)
+  "Entry for augmenting debbugs bug/patch/etc references with their debbugs URL.")
+
+(defun augment--augment-savannah-commit (matchdata)
+  (concat "https://git.savannah.gnu.org/cgit/emacs.git/commit/?id=" (nth 1 matchdata)))
+
+(defvar augment-entry-savannah-commits
+  (list
+   :predicate t
+   :order 1
+   :regex (rx "@" (group (>= 8 hex)))
+   :augment-fn #'augment--augment-savannah-commit)
+  "Entry for augmenting commit references with their savannah URL.")
+
+(defvar augment-entries (list augment-entry-debbugs
+                              augment-entry-savannah-commits)
   "List of augmentation entries to apply.
 
 An entry is a plist of (:PREDICATE :ORDER :REGEXP :AUGMENT-FN).
