@@ -58,6 +58,13 @@ a string which is used as the content of the augmentation.")
   (let ((o (make-overlay beg end nil t nil)))
 	  (overlay-put o 'category 'augment)
     (overlay-put o 'augmentation aug)))
+
+(defun augment--predicate-truthy-p (pred)
+  "Returns non-nil if PRED is true."
+  (cond
+   ((functionp pred) (funcall pred))
+   ((symbolp pred) pred)))
+
 ;;;; public
 
 (defun augment-at-point (&optional p)
