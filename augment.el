@@ -23,11 +23,16 @@
 (defvar augment-entries nil
   "List of augmentation entries to apply.
 
-An entry is a plist of (:PREDICATE :REGEXP :AUGMENT-FN).
+An entry is a plist of (:PREDICATE :ORDER :REGEXP :AUGMENT-FN).
 
 :PREDICATE determines if an entry is applied. It can be either:
 * A symbol
 * A function, in which case it is called without arguments.
+
+:ORDER the order in which the augmentation should be checked and
+applied (from lowest to highest), this acts to prioritize one
+entry above another, as only one augment will be applied at any
+one point.
 
 :REGEXP is an elisp regular expression.
 
@@ -75,6 +80,14 @@ applied in region BEG END."
    ((symbolp pred) pred)))
 
 ;;;; public
+
+(defun augment-sort-entries ()
+  "Sort augment entries by their `:order' keyword."
+  (setq augment-entries
+        (sort augment-entries
+              (lambda (a b)
+                (ignore-errors
+                  (< (plist-get a :order) (plist-get b :order)))))))
 
 (defun augment-at-point (&optional p)
   "Return the augment at point P."
